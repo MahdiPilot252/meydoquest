@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+:root {
+  --mq-bg: #090d16;
+  --mq-bg-soft: #0f1524;
+  --mq-surface: rgba(255, 255, 255, 0.06);
+  --mq-surface-strong: rgba(255, 255, 255, 0.1);
+  --mq-border: rgba(255, 255, 255, 0.12);
+  --mq-text: #ecf3ff;
+  --mq-text-soft: #a6b3cb;
+  --mq-mint: #00f5a0;
+  --mq-mint-soft: rgba(0, 245, 160, 0.16);
+  --mq-danger: #ff6b7a;
+  --mq-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(0, 245, 160, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(77, 123, 255, 0.18), transparent 24%),
+    linear-gradient(180deg, #090d16 0%, #0b1020 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+::selection {
+  background: rgba(0, 245, 160, 0.24);
+  color: white;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(0, 245, 160, 0.7);
+  outline-offset: 2px;
+}
+
+.mq-shell {
+  width: min(1200px, calc(100vw - 2rem));
+  margin-inline: auto;
+}
+
+.mq-glass {
+  background: var(--mq-surface);
+  border: 1px solid var(--mq-border);
+  box-shadow: var(--mq-shadow);
+  backdrop-filter: blur(16px);
+}
+
+.mq-muted {
+  color: var(--mq-text-soft);
+}
+
+.mq-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  a,
+  button,
+  input,
+  textarea,
+  select {
+    transition: none;
+  }
+}
