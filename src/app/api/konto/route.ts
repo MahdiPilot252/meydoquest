@@ -20,15 +20,25 @@ export async function POST(request: Request) {
   if (action === "profil") {
     const displayName = String(formData.get("displayName") ?? "").trim().slice(0, 120);
     const avatarDataRaw = String(formData.get("avatarData") ?? "");
-    const avatarData = avatarDataRaw.startsWith("data:image/png;base64,") ? avatarDataRaw : null;
+    const avatarData = avatarDataRaw.startsWith("data:image/") ? avatarDataRaw : null;
+
+    // Profilbild als Datei-Upload
+    const profilePicFile = formData.get("profilePic");
+    let profilePicData: string | null = null;
+    if (profilePicFile instanceof File && profilePicFile.size > 0 && profilePicFile.size < 2 * 1024 * 1024 && profilePicFile.type.startsWith("image/")) {
+      const bytes = Buffer.from(await profilePicFile.arrayBuffer());
+      profilePicData = `data:${profilePicFile.type};base64,${bytes.toString("base64")}`;
+    }
 
     if (displayName.length < 2) return redirectAntwort(request, "/konto?error=ungueltiges_profil");
 
     await db.update(users).set({ displayName, updatedAt: new Date() }).where(eq(users.id, user.id));
     
-    if (avatarData) {
-      await db.update(profiles).set({ avatarData, updatedAt: new Date() }).where(eq(profiles.userId, user.id));
-    }
+    const profileUpdate: Record<string, unknown> = { updatedAt: new Date() };
+    if (avatarData) profileUpdate.avatarData = avatarData;
+    if (profilePicData) profileUpdate.profilePicData = profilePicData;
+    
+    await db.update(profiles).set(profileUpdate).where(eq(profiles.userId, user.id));
 
     return redirectAntwort(request, "/konto?saved=1");
   }

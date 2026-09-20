@@ -50,6 +50,7 @@ export async function getDashboardData(userId: string) {
       preferredLanguage: profiles.preferredLanguage,
       avatarHue: profiles.avatarHue,
       avatarData: profiles.avatarData,
+      profilePicData: profiles.profilePicData,
       dailyGoalMinutes: profiles.dailyGoalMinutes,
       streakCount: profiles.streakCount,
       longestStreak: profiles.longestStreak,

@@ -282,57 +282,19 @@ async function ensureStarterCollection(
   const byAnswer = new Map(existingItems.map((item) => [item.canonicalAnswer ?? "", item.id]));
 
   const itemDefs = [
-    {
-      title: "apple",
-      prompt: "Übersetze das Wort ins Französische.",
-      canonicalAnswer: "pomme",
-      explanation: "‚apple‘ heißt auf Französisch ‚pomme‘.",
-      languageFrom: "en",
-      languageTo: "fr",
-      itemData: { translations: ["pomme"], examples: ["The apple is red."] },
-    },
-    {
-      title: "bonjour",
-      prompt: "Übersetze die Begrüßung ins Englische.",
-      canonicalAnswer: "hello",
-      explanation: "‚bonjour‘ bedeutet meist ‚hello‘ oder ‚good day‘.",
-      languageFrom: "fr",
-      languageTo: "en",
-      itemData: { translations: ["hello", "good day"], examples: ["Bonjour, Marie !"] },
-    },
-    {
-      title: "to read",
-      prompt: "Wie heißt das Verb auf Französisch?",
-      canonicalAnswer: "lire",
-      explanation: "‚to read‘ heißt auf Französisch ‚lire‘.",
-      languageFrom: "en",
-      languageTo: "fr",
-      itemData: { translations: ["lire"], examples: ["I like to read books."] },
-    },
-    {
-      title: "chien",
-      prompt: "Übersetze das Tierwort ins Englische.",
-      canonicalAnswer: "dog",
-      explanation: "‚chien‘ ist das französische Wort für ‚dog‘.",
-      languageFrom: "fr",
-      languageTo: "en",
-      itemData: { translations: ["dog"] },
-    },
-    {
-      title: "blue",
-      prompt: "Übersetze die Farbe ins Französische.",
-      canonicalAnswer: "bleu",
-      explanation: "‚blue‘ heißt auf Französisch ‚bleu‘.",
-      languageFrom: "en",
-      languageTo: "fr",
-      itemData: { translations: ["bleu"] },
-    },
+    // Deutsch → Englisch
+    { title: "Schule", prompt: "Übersetze ins Englische.", canonicalAnswer: "school", explanation: "Schule = school", languageFrom: "de", languageTo: "en", itemData: { translations: ["school"], examples: ["Ich gehe zur Schule."] } },
+    { title: "Hausaufgabe", prompt: "Übersetze ins Englische.", canonicalAnswer: "homework", explanation: "Hausaufgabe = homework", languageFrom: "de", languageTo: "en", itemData: { translations: ["homework"], examples: ["Hast du deine Hausaufgaben?"] } },
+    { title: "Freund", prompt: "Übersetze ins Englische.", canonicalAnswer: "friend", explanation: "Freund = friend", languageFrom: "de", languageTo: "en", itemData: { translations: ["friend"], examples: ["Er ist mein bester Freund."] } },
+    // Deutsch → Französisch
+    { title: "Hund", prompt: "Übersetze ins Französische.", canonicalAnswer: "chien", explanation: "Hund = chien", languageFrom: "de", languageTo: "fr", itemData: { translations: ["chien"], examples: ["Der Hund ist groß."] } },
+    { title: "Haus", prompt: "Übersetze ins Französische.", canonicalAnswer: "maison", explanation: "Haus = maison", languageFrom: "de", languageTo: "fr", itemData: { translations: ["maison", "la maison"], examples: ["Das Haus ist alt."] } },
   ] as const;
 
   for (const item of itemDefs) {
-    const subjectId = subjectMap.get(item.languageFrom === "fr" ? "french" : "english") ?? null;
+    const subjectId = subjectMap.get(item.languageTo === "fr" ? "french" : "english") ?? null;
     const primarySkillId =
-      item.languageFrom === "fr"
+      item.languageTo === "fr"
         ? skillMap.get("Französisch Grundwortschatz") ?? null
         : skillMap.get("Englisch Grundwortschatz") ?? null;
     const translationSkillId = skillMap.get("Übersetzungsgrundlagen") ?? null;

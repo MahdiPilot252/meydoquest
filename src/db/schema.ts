@@ -106,6 +106,7 @@ export const profiles = pgTable("profiles", {
   preferredLanguage: varchar("preferred_language", { length: 12 }).notNull().default("de"),
   avatarHue: integer("avatar_hue").notNull().default(140),
   avatarData: text("avatar_data"),
+  profilePicData: text("profile_pic_data"),
   dailyGoalMinutes: integer("daily_goal_minutes").notNull().default(15),
   streakCount: integer("streak_count").notNull().default(0),
   longestStreak: integer("longest_streak").notNull().default(0),

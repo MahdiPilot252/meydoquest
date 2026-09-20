@@ -1,14 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { subjects } from "@/db/schema";
+import { contentCollections, exercises, subjects } from "@/db/schema";
 import { getOptionalUser, isTeacherLike } from "@/lib/auth/guards";
 import { ensurePlatformSetup } from "@/lib/bootstrap";
 import { getDashboardData } from "@/lib/data/dashboard";
 import { getPlatformSettings } from "@/lib/data/platform";
 import { CardCreator } from "@/components/card-creator";
 import { InstallAppButton } from "@/components/install-app-button";
+import { BattlePass } from "@/components/battle-pass";
+import { SpeedQuiz } from "@/components/speed-quiz";
+import { MatchGame } from "@/components/match-game";
 
 export const dynamic = "force-dynamic";
 
@@ -131,6 +134,22 @@ export default async function HomePage({
   const coins = d.user?.coinsTotal ?? 0;
   const aktivesLogo = d.dueReviewCount > 0 && settings.sadLogoData ? settings.sadLogoData : settings.logoData;
 
+  // Karten für Lernspiele aus DB-Exercises extrahieren
+  const exerciseRows = d.accessibleCollections.length > 0
+    ? await db
+        .select({ content: exercises.content, type: exercises.type })
+        .from(exercises)
+        .innerJoin(contentCollections, eq(exercises.collectionId, contentCollections.id))
+        .where(eq(exercises.type, "flashcard"))
+        .limit(30)
+    : [];
+  const allCards = exerciseRows
+    .map((e) => {
+      const c = e.content as { front?: string; back?: string };
+      return c.front && c.back ? { front: c.front, back: c.back } : null;
+    })
+    .filter((c): c is { front: string; back: string } => c !== null);
+
   const lehrer = d.memberships.filter((m) => isTeacherLike(m.membershipRole));
   const codes = new Map<string, string>();
   for (const inv of d.activeInvites) {
@@ -166,7 +185,9 @@ export default async function HomePage({
             <Link href="/admin" className="rounded-full bg-rose-500/15 px-2.5 py-1 text-xs font-bold text-rose-300 hover:bg-rose-500/25">Admin</Link>
           )}
           <Link href="/konto" className="group" title="Profil, Avatar & Passwort">
-            {avatarData ? (
+            {d.user?.profilePicData ? (
+              <Image src={d.user.profilePicData} alt="Profil" width={40} height={40} unoptimized className="h-10 w-10 rounded-full object-cover shadow-[0_0_15px_rgba(0,0,0,0.5)] transition group-hover:scale-105" />
+            ) : avatarData ? (
               <Image src={avatarData} alt="Avatar" width={40} height={40} unoptimized className="h-10 w-10 rounded-full object-cover shadow-[0_0_15px_rgba(0,0,0,0.5)] transition group-hover:scale-105" />
             ) : (
               <div className="grid h-10 w-10 place-items-center rounded-full text-sm font-bold text-slate-950 shadow-[0_0_15px_rgba(0,0,0,0.5)] transition group-hover:scale-105" style={{ background: skinBg(hue) }}>
@@ -215,11 +236,56 @@ export default async function HomePage({
           </section>
         )}
 
+        {/* BATTLE PASS */}
+        <section>
+          <h2 className="text-xl font-bold text-white">🏆 meydoQuest Pass</h2>
+          <div className="mt-4">
+            <BattlePass xp={xp} streak={streak} />
+          </div>
+        </section>
+
+        {/* LERNSPIELE */}
+        {d.accessibleCollections.length > 0 && (
+          <section>
+            <h2 className="text-xl font-bold text-white">🎮 Lernspiele</h2>
+            <p className="mt-1 text-sm text-slate-500">Teste dein Wissen mit interaktiven Spielen!</p>
+            <div className="mt-4 space-y-6">
+              <div className="rounded-3xl border border-white/8 bg-white/3 p-5">
+                <SpeedQuiz cards={allCards} />
+              </div>
+              <div className="rounded-3xl border border-white/8 bg-white/3 p-5">
+                <h3 className="text-lg font-bold text-white mb-4">🔗 Zuordnungsspiel</h3>
+                <MatchGame cards={allCards} />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* KARTEN ERSTELLEN */}
         <section>
           <h2 className="text-xl font-bold text-white">✏️ Karten erstellen</h2>
-          <p className="mt-1 text-sm text-slate-500">Gib Vorderseite und Rückseite ein. Eine Karte nach der anderen. Wenn du fertig bist, drückst du Speichern.</p>
+          <p className="mt-1 text-sm text-slate-500">Vorderseite + Rückseite eingeben. Eine nach der anderen.</p>
           <div className="mt-4">
             <CardCreator />
+          </div>
+        </section>
+
+        {/* APP INSTALLIEREN */}
+        <section className="rounded-3xl border border-sky-500/20 bg-sky-500/5 p-5">
+          <h2 className="text-lg font-bold text-white">📲 App installieren</h2>
+          <div className="mt-3 space-y-3 text-sm text-slate-400">
+            <div className="rounded-2xl border border-white/6 bg-white/3 p-3">
+              <p className="font-bold text-white">Android / Chrome:</p>
+              <p>3 Punkte oben rechts → &quot;App installieren&quot;</p>
+            </div>
+            <div className="rounded-2xl border border-white/6 bg-white/3 p-3">
+              <p className="font-bold text-white">iPhone / Safari:</p>
+              <p>Teilen-Symbol unten → &quot;Zum Home-Bildschirm&quot;</p>
+            </div>
+            <div className="rounded-2xl border border-white/6 bg-white/3 p-3">
+              <p className="font-bold text-white">PC / Chrome / Edge:</p>
+              <p>Rechts in der Adressleiste → Installations-Symbol klicken</p>
+            </div>
           </div>
         </section>
 
