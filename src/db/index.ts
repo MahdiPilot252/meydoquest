@@ -1,11 +1,8 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
-}
+// Dein bombensicherer, neuer IPv4-Link direkt im Code verankert!
+const databaseUrl = process.env.DATABASE_URL || "postgresql://postgres.josodbxaherxjqeejcfm:Mehdiolingwow@://supabase.com";
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
